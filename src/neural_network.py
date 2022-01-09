@@ -3,23 +3,16 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
 from keras import backend as K
 import numpy as np
-x = []
-y = []
-nvda_i = np.load("NVDA_input_data.npy")
-aapl_i = np.load("AAPL_input_data.npy")
-nvda_o = np.load("NVDA_output_data.npy")
-aapl_o = np.load("AAPL_output_data.npy")
+
+x_train = np.load("./data/GOOG_2022-01-09_input_data.npy")
+x_test = np.load("./data/NVDA_2022-01-09_input_data.npy")
+y_train = np.load("./data/GOOG_2022-01-09_output_data.npy")
+y_test = np.load("./data/NVDA_2022-01-09_output_data.npy")
 
 batch_size = 16
-num_classes = 2
+num_classes = 9
 epochs = 50
 nsamp = (5, 1)
-
-N = 2000 #seperator for train/test
-x_train = nvda_i
-y_train = nvda_o
-x_test = aapl_i
-y_test = aapl_o
 
 #change output vecs to use one-hot notation
 y_train = keras.utils.to_categorical(y_train, num_classes)
