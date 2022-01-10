@@ -4,22 +4,23 @@ import os
 import subprocess
 
 #each sample will be of input_mins + output_min_gap + 1
-input_mins = 13 #minutes of data to feed to network
+input_mins = 14 #minutes of data to feed to network
 output_min_gap = 1 #minutes between end of input and prediction minute
-sample_len = input_mins + output_min_gap + 1
+sample_len = input_mins + output_min_gap
 
 def get_month(stock, date):
 
     ticker = yf.Ticker(stock)
-    #data = np.array(ticker.history(interval='1m', start='2021-12-11', end='2021-12-12'))[:,1] #1 day
-    data = np.array(ticker.history(interval='1m', start='2021-12-13', end='2021-12-19'))[:,1] #5 days
-    data = np.append(data, np.array(ticker.history(interval='1m', start='2021-12-20', end='2021-12-26'))[:,1]) #4 days
+    #data = np.array(ticker.history(interval='1m', start='2021-12-11', end='2021-12-12'))[:,1] #1 da
+    data = np.array(ticker.history(interval='1m', start='2021-12-20', end='2021-12-26'))[:,1]
     data = np.append(data, np.array(ticker.history(interval='1m', start='2021-12-27', end='2022-1-2'))[:,1]) #5 days
     data = np.append(data, np.array(ticker.history(interval='1m', start='2022-1-3', end='2022-1-9'))[:,1]) #5 days
+    data = np.append(data, np.array(ticker.history(interval='1m', start='2022-1-10', end='2022-1-11'))[:,1]) #4 days
+
     make_io_vecs(stock, data, date)
 
 def make_io_vecs(stock, data, date):
-    inputs = [data[i:i+5] for i in range(0, len(data), sample_len)]
+    inputs = [data[i:i+input_mins] for i in range(0, len(data), sample_len)]
     outputs = []
     counts = [0 for i in range(11)]
     for i in range(sample_len - 1, len(data), sample_len):
@@ -42,12 +43,11 @@ def make_io_vecs(stock, data, date):
         outputs = np.array(outputs)
         idx = np.argsort(np.random.random(outputs.shape[0]))
         inputs = inputs[idx]
-        inputs = inputs / np.average(inputs)
+        outputs = outputs[idx]
         print(inputs[:10])
         print(outputs[:10])
-        outputs = outputs[idx]
-        os.system("rm -f %s_input_data.npy")
-        os.system("rm -f %s_output_data.npy")
+        os.system("rm -f ./data/%s_%s_input_data.npy" % (stock, date))
+        os.system("rm -f ./data/%s_%s_output_data.npy" % (stock, date))
         np.save("./data/%s_%s_input_data.npy" % (stock, date), inputs)
         np.save("./data/%s_%s_output_data.npy" % (stock, date), outputs)
 
